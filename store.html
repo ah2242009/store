@@ -1,0 +1,194 @@
+﻿<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>متجر إلكتروني</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .header {
+            background-color: #007BFF;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+        }
+        .product-container, .cart-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+        }
+        .product, .cart-item {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            width: 300px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+        .product:hover, .cart-item:hover {
+            transform: scale(1.05);
+        }
+        .product img, .cart-item img {
+            width: 100%;
+            height: auto;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+        .product h3, .cart-item h3 {
+            margin: 10px 0;
+            color: #333;
+        }
+        .product p, .cart-item p {
+            color: #555;
+            margin: 0 10px 10px;
+        }
+        .product button, .cart-item button, .checkout {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .product button:hover, .cart-item button:hover, .checkout:hover {
+            background-color: #0056b3;
+        }
+        .cart {
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            margin: 20px auto;
+            width: 80%;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .cart h2 {
+            margin-bottom: 20px;
+        }
+        .cart .total {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>مرحبًا بك في متجرنا</h1>
+    </div>
+
+    <div class="product-container">
+        <!-- المنتج الأول -->
+        <div class="product">
+            <img src="https://www.egymerch.net/cached_images/designer_products_thumbs/8435/mockup-4-EUyJL23hkr.jpeg" alt="هودي">
+            <h3>هودي كلاسيك قطن مخلوط</h3>
+            <p>
+                المنتج مبطن من الداخل ببطانة ناعمة عالية التدفئة<br>
+                التقفيل عالي الجودة على كامل أجزاء المنتج<br>
+                طباعة ديجيتال DTF بأحبار يابانية عالية الجودة<br>
+                الطباعة لا تتقشر أو تتشقق مع الوقت<br>
+                اختر مقاسك من الجدول بالأعلى
+            </p>
+            <p>السعر: 150 جنيه</p>
+            <button onclick="addToCart('هودي كلاسيك قطن مخلوط', 150)">إضافة إلى السلة</button>
+        </div>
+    </div>
+
+    <div class="cart">
+        <h2>سلة المشتريات</h2>
+        <div class="cart-container" id="cart-container">
+            <p>السلة فارغة.</p>
+        </div>
+        <div class="total" id="cart-total">الإجمالي: 0 جنيه</div>
+        <button class="checkout" onclick="sendCartToWhatsApp()">طلب المنتجات عبر واتساب</button>
+    </div>
+
+    <script>
+        let cart = [];
+
+        // تحميل السلة من LocalStorage عند تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', () => {
+            const storedCart = localStorage.getItem('cart');
+            if (storedCart) {
+                cart = JSON.parse(storedCart);
+                updateCart();
+            }
+        });
+
+        function addToCart(productName, price) {
+            cart.push({ name: productName, price: price });
+            saveCart();
+            updateCart();
+        }
+
+        function updateCart() {
+            const cartContainer = document.getElementById('cart-container');
+            const cartTotal = document.getElementById('cart-total');
+            cartContainer.innerHTML = '';
+            if (cart.length === 0) {
+                cartContainer.innerHTML = '<p>السلة فارغة.</p>';
+                cartTotal.textContent = 'الإجمالي: 0 جنيه';
+                return;
+            }
+
+            let total = 0;
+            cart.forEach((item, index) => {
+                total += item.price;
+
+                const cartItem = document.createElement('div');
+                cartItem.classList.add('cart-item');
+                cartItem.innerHTML = `
+                    <h3>${item.name}</h3>
+                    <p>السعر: ${item.price} جنيه</p>
+                    <button onclick="removeFromCart(${index})">إزالة</button>
+                `;
+                cartContainer.appendChild(cartItem);
+            });
+
+            cartTotal.textContent = `الإجمالي: ${total} جنيه`;
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            saveCart();
+            updateCart();
+        }
+
+        function saveCart() {
+            localStorage.setItem('cart', JSON.stringify(cart));
+        }
+
+        function sendCartToWhatsApp() {
+            if (cart.length === 0) {
+                alert('السلة فارغة!');
+                return;
+            }
+
+            const phoneNumber = "201559178766"; // رقم واتساب بصيغة دولية
+            let message = "مرحبًا، أرغب في طلب المنتجات التالية:\n\n";
+            let total = 0;
+
+            cart.forEach((item, index) => {
+                total += item.price;
+                message += `${index + 1}. ${item.name} - ${item.price} جنيه\n`;
+            });
+
+            message += `\nالإجمالي: ${total} جنيه`;
+            const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, "_blank");
+        }
+    </script>
+</body>
+</html>
